@@ -1,0 +1,106 @@
+services:
+  mariadb:
+    build:
+      context: ./mariadb
+    image: ${MARIADB_IMAGE}
+    container_name: ${MARIADB_CONTAINER_NAME}
+    restart: always
+    networks:
+      - inception_network
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    secrets:
+      - db_password
+      - db_root_password
+    env_file:
+      - .env
+
+  wordpress:
+    build:
+      context: ./wordpress
+    image: ${WORDPRESS_IMAGE}
+    container_name: ${WORDPRESS_CONTAINER_NAME}
+    restart: always
+    depends_on:
+      - mariadb
+    networks:
+      - inception_network
+    volumes:
+      - wordpress_data:/var/www/wordpress
+    secrets:
+      - db_password
+      - wp_admin_password
+      - wp_user_password
+    env_file:
+      - .env
+
+  nginx:
+    build:
+      context: ./nginx
+    image: ${NGINX_IMAGE}
+    container_name: ${NGINX_CONTAINER_NAME}
+    restart: always
+    depends_on:
+      - wordpress
+    ports:
+      - "443:443"
+    networks:
+      - inception_network
+    volumes:
+      - wordpress_data:/var/www/wordpress:ro
+    env_file:
+      - .env
+
+  adminer:
+    build:
+      context: ./adminer
+    image: ${ADMINER_IMAGE}
+    container_name: ${ADMINER_CONTAINER_NAME}
+    restart: always
+    depends_on:
+      - mariadb
+    networks:
+      - inception_network
+    secrets:
+      - db_password
+    env_file:
+      - .env
+
+  static:
+    build:
+      context: ./static
+    image: ${STATIC_IMAGE}
+    container_name: ${STATIC_CONTAINER_NAME}
+    restart: always
+    networks:
+      - inception_network
+    env_file:
+      - .env
+
+networks:
+  inception_network:
+    driver: bridge
+
+volumes:
+  mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH}/mariadb
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH}/wordpress
+
+secrets:
+  db_password:
+    file: ${SECRETS_PATH}/db_password.txt
+  db_root_password:
+    file: ${SECRETS_PATH}/db_root_password.txt
+  wp_admin_password:
+    file: ${SECRETS_PATH}/wp_admin_password.txt
+  wp_user_password:
+    file: ${SECRETS_PATH}/wp_user_password.txt
