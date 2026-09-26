@@ -3,7 +3,7 @@
 set -e
 
 DB_PASSWORD=$(cat /run/secrets/db_password)
-WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
+wp_queen_password=$(cat /run/secrets/wp_queen_password)
 WP_USER_PASSWORD=$(cat /run/secrets/wp_user_password)
 
 WORDPRESS_PATH=${WORDPRESS_PATH:-/var/www/wordpress}
@@ -12,8 +12,8 @@ DB_USER=${DB_USER:-wpuser}
 DB_HOST=${DB_HOST:-mariadb}
 WP_URL=${WP_URL:-https://glucken.42.ch}
 WP_TITLE=${WP_TITLE:-Inception}
-WP_ADMIN_USER=${WP_ADMIN_USER:-glucken}
-WP_ADMIN_EMAIL=${WP_ADMIN_EMAIL:-glucken@student.42lausanne.ch}
+WP_QUEEN_USER=${WP_QUEEN_USER:-glucken}
+WP_QUEEN_EMAIL=${WP_QUEEN_EMAIL:-glucken@student.42lausanne.ch}
 WP_USER_LOGIN=${WP_USER_LOGIN:-glucken_user}
 WP_USER_EMAIL=${WP_USER_EMAIL:-glucken+user@student.42lausanne.ch}
 
@@ -40,7 +40,7 @@ then
 		su -s /bin/bash -c "wp core config --path='$WORDPRESS_PATH' --dbname='$DB_NAME' --dbuser='$DB_USER' --dbpass='$DB_PASSWORD' --dbhost='$DB_HOST'" www-data
 	fi
 
-	su -s /bin/bash -c "wp core install --path='$WORDPRESS_PATH' --url='$WP_URL' --title='$WP_TITLE' --admin_user='$WP_ADMIN_USER' --admin_password='$WP_ADMIN_PASSWORD' --admin_email='$WP_ADMIN_EMAIL' --skip-email" www-data
+	su -s /bin/bash -c "wp core install --path='$WORDPRESS_PATH' --url='$WP_URL' --title='$WP_TITLE' --admin_user='$WP_QUEEN_USER' --admin_password='$wp_queen_password' --admin_email='$WP_QUEEN_EMAIL' --skip-email" www-data
 
 	if ! su -s /bin/bash -c "wp user get '$WP_USER_LOGIN' --path='$WORDPRESS_PATH' >/dev/null 2>&1" www-data
 	then
