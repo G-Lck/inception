@@ -2,6 +2,7 @@ FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y \
 	nginx \
+	curl \
 	openssl \
 	gettext-base \
 	&& rm -rf /var/lib/apt/lists/*
